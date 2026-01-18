@@ -2,7 +2,8 @@ import * as pdfjsLib from 'pdfjs-dist';
 // import epub from 'epubjs'; // We might need to import it differently or use dynamic import
 
 // Set worker source for pdfjs
-pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
+import pdfWorker from 'pdfjs-dist/build/pdf.worker.min.mjs?url';
+pdfjsLib.GlobalWorkerOptions.workerSrc = pdfWorker;
 
 export type ParsedBook = {
     content: string[]; // Array of words
@@ -43,8 +44,38 @@ async function parsePDF(file: File): Promise<ParsedBook> {
 
     for (let i = 1; i <= pdf.numPages; i++) {
         const page = await pdf.getPage(i);
+        const viewport = page.getViewport({ scale: 1 });
+        const height = viewport.height;
+
+        // Define margins for headers and footers (e.g., 5% from top/bottom)
+        const headerThreshold = height * 0.95;
+        const footerThreshold = height * 0.05;
+
         const textContent = await page.getTextContent();
-        const strings = textContent.items.map((item: any) => item.str);
+
+        // Filter items
+        const strings = textContent.items
+            .filter((item: any) => {
+                // Check if item has transform data
+                if (!item.transform || item.transform.length < 6) return true;
+
+                const y = item.transform[5]; // transform[5] is ty (vertical translation)
+
+                // Exclude headers (high Y) and footers (low Y)
+                // Note: PDF coordinates origin is usually bottom-left.
+                if (y > headerThreshold || y < footerThreshold) {
+                    return false;
+                }
+
+                // Simple check for standalone numbers (likely page numbers if they slipped through)
+                if (/^\d+$/.test(item.str.trim())) {
+                    return false;
+                }
+
+                return true;
+            })
+            .map((item: any) => item.str);
+
         fullText += strings.join(' ') + ' ';
     }
 
@@ -91,14 +122,14 @@ async function parseEPUB(file: File): Promise<ParsedBook> {
         // It's async.
 
         const spine = book.spine;
-        let fullText = '';
+        // let fullText = '';
 
         // We need to iterate over spine items
         // spine.each() is synchronous but the callback might need to load.
         // spine.get(index) returns a section. section.load() returns text/dom.
 
         for (const item of (spine as any).items) { // Accessing items directly or via iteration
-            const section = book.spine.get(item.href);
+            book.spine.get(item.href);
             // section.load methods usually need a render target or hooks. 
             // However, generic 'load' might fetch content.
             // If this fails, we might mock EPUB support or ask for advice.

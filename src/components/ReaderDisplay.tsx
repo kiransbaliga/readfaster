@@ -1,5 +1,4 @@
 import { useMemo } from 'react';
-import { motion } from 'framer-motion';
 
 interface ReaderDisplayProps {
     word: string;

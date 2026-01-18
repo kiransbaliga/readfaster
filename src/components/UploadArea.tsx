@@ -41,7 +41,7 @@ export function UploadArea({ onFileLoaded }: UploadAreaProps) {
             </motion.div>
 
             <motion.div
-                {...getRootProps()}
+                {...getRootProps() as any}
                 initial={{ scale: 0.95, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 whileHover={{ scale: 1.02, borderColor: 'rgba(59, 130, 246, 0.5)' }}
