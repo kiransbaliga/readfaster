@@ -15,7 +15,7 @@ function App() {
   // Initialize hook with empty array if no book
   const { state, controls } = useRSVP(book ? book.content : [], 300);
 
-  const handleFileLoaded = useCallback(async (file: File) => {
+  const handleFileLoaded = useCallback(async (file: File | string) => {
     setLoading(true);
     setError(null);
     try {

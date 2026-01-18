@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import { Upload, FileText, BookOpen } from 'lucide-react';
 
 interface UploadAreaProps {
-    onFileLoaded: (file: File) => void;
+    onFileLoaded: (file: File | string) => void;
 }
 
 export function UploadArea({ onFileLoaded }: UploadAreaProps) {
@@ -62,6 +62,35 @@ export function UploadArea({ onFileLoaded }: UploadAreaProps) {
                         Supports PDF, TXT
                     </p>
                 </div>
+            </motion.div >
+
+            <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.2 }}
+                className="w-full max-w-lg mt-8 flex flex-col md:flex-row gap-4"
+            >
+                <input
+                    type="text"
+                    placeholder="Or paste a URL to an article..."
+                    className="flex-1 bg-neutral-800/50 border border-neutral-700/50 rounded-xl px-4 py-3 text-white placeholder-neutral-500 focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/50 transition-all"
+                    onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                            onFileLoaded((e.target as HTMLInputElement).value as any);
+                        }
+                    }}
+                />
+                <button
+                    onClick={() => {
+                        const input = document.querySelector('input[type="text"]') as HTMLInputElement;
+                        if (input && input.value) {
+                            onFileLoaded(input.value as any);
+                        }
+                    }}
+                    className="px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white font-medium rounded-xl transition-colors"
+                >
+                    Go
+                </button>
             </motion.div>
 
             <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-6 w-full text-center">
@@ -83,6 +112,6 @@ export function UploadArea({ onFileLoaded }: UploadAreaProps) {
                     </motion.div>
                 ))}
             </div>
-        </div>
+        </div >
     );
 }

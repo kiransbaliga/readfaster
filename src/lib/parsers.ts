@@ -11,7 +11,14 @@ export type ParsedBook = {
     originalText: string;
 };
 
-export async function parseFile(file: File): Promise<ParsedBook> {
+import { Readability } from '@mozilla/readability';
+
+export async function parseFile(file: File | string): Promise<ParsedBook> {
+    // If it's a string, treat as URL
+    if (typeof file === 'string') {
+        return parseURL(file);
+    }
+
     const extension = file.name.split('.').pop()?.toLowerCase();
 
     switch (extension) {
@@ -23,6 +30,37 @@ export async function parseFile(file: File): Promise<ParsedBook> {
             return parseTXT(file);
         default:
             throw new Error(`Unsupported file type: ${extension}`);
+    }
+}
+
+async function parseURL(url: string): Promise<ParsedBook> {
+    // Use a CORS proxy
+    const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`;
+
+    try {
+        const response = await fetch(proxyUrl);
+        if (!response.ok) {
+            throw new Error(`Failed to fetch URL: ${response.statusText}`);
+        }
+
+        const html = await response.text();
+        const doc = new DOMParser().parseFromString(html, "text/html");
+
+        const reader = new Readability(doc);
+        const article = reader.parse();
+
+        if (!article) {
+            throw new Error("Failed to parse article content");
+        }
+
+        return {
+            content: processText(article.textContent),
+            title: article.title || "Web Article",
+            originalText: article.textContent,
+        };
+    } catch (error) {
+        console.error("URL parsing error:", error);
+        throw error;
     }
 }
 

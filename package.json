@@ -12,6 +12,7 @@
     "deploy": "gh-pages -d dist"
   },
   "dependencies": {
+    "@mozilla/readability": "^0.6.0",
     "epubjs": "^0.3.93",
     "framer-motion": "^12.26.2",
     "lucide-react": "^0.562.0",
