@@ -54,9 +54,9 @@ async function parseURL(url: string): Promise<ParsedBook> {
         }
 
         return {
-            content: processText(article.textContent),
+            content: processText(article.textContent || ""),
             title: article.title || "Web Article",
-            originalText: article.textContent,
+            originalText: article.textContent || "",
         };
     } catch (error) {
         console.error("URL parsing error:", error);
