@@ -14,6 +14,7 @@ export type RSVPControls = {
     togglePlay: () => void;
     setWPM: (wpm: number) => void;
     seek: (progress: number) => void; // 0 to 1
+    seekIndex: (index: number) => void; // Direct index
     skipBack: () => void;
     skipForward: () => void;
     reset: () => void;
@@ -50,9 +51,6 @@ export const useRSVP = (words: string[], initialWPM: number = 300) => {
                     setIsPlaying(false);
                     return prev;
                 }
-                // Heuristic for long words or punctuation? 
-                // Advanced RSVP slows down for long words/commas.
-                // For now, constant speed.
                 return prev + 1;
             });
         }, intervalMs);
@@ -76,24 +74,25 @@ export const useRSVP = (words: string[], initialWPM: number = 300) => {
         setIndex(Math.max(0, Math.min(newIndex, words.length - 1)));
     }, [words.length]);
 
+    const seekIndex = useCallback((idx: number) => {
+        setIndex(Math.max(0, Math.min(idx, words.length - 1)));
+    }, [words.length]);
+
     const skipBack = useCallback(() => {
-        // Skip back a sentence or chunk (approx 10 words)
         setIndex((prev) => {
             let newIdx = prev - 1;
             let count = 0;
-            // Search backwards for a period or start
-            while (newIdx > 0 && count < 15) { // Fallback if no sentence
+            while (newIdx > 0 && count < 15) {
                 if (words[newIdx].endsWith('.') || words[newIdx].endsWith('!') || words[newIdx].endsWith('?')) {
-                    if (count > 2) break; // Don't stop at immediate previous sentence if it's too close
+                    if (count > 2) break;
                 }
                 newIdx--;
                 count++;
             }
-            // If we didn't find a sentence break easily, just go back 10 words
             if (count >= 15) {
                 return Math.max(0, prev - 10);
             }
-            return Math.max(0, newIdx + 1); // Start after the period
+            return Math.max(0, newIdx + 1);
         });
     }, [words]);
 
@@ -108,6 +107,6 @@ export const useRSVP = (words: string[], initialWPM: number = 300) => {
 
     return {
         state: { isPlaying, index, wpm, currentWord, progress },
-        controls: { play, pause, togglePlay, setWPM, seek, skipBack, skipForward, reset },
+        controls: { play, pause, togglePlay, setWPM, seek, seekIndex, skipBack, skipForward, reset },
     };
 };

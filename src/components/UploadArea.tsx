@@ -1,13 +1,15 @@
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { motion } from 'framer-motion';
-import { Upload, FileText, BookOpen } from 'lucide-react';
+import { Upload, FileText, BookOpen, ArrowRight, Sparkles } from 'lucide-react';
 
 interface UploadAreaProps {
     onFileLoaded: (file: File | string) => void;
 }
 
 export function UploadArea({ onFileLoaded }: UploadAreaProps) {
+    const [urlInput, setUrlInput] = useState('');
+
     const onDrop = useCallback((acceptedFiles: File[]) => {
         if (acceptedFiles.length > 0) {
             onFileLoaded(acceptedFiles[0]);
@@ -19,99 +21,167 @@ export function UploadArea({ onFileLoaded }: UploadAreaProps) {
         accept: {
             'application/pdf': ['.pdf'],
             'text/plain': ['.txt'],
-            // 'application/epub+zip': ['.epub'], // Temporarily disabled or verify support
         },
         maxFiles: 1,
     });
 
+    const handleUrlSubmit = () => {
+        if (urlInput.trim()) {
+            onFileLoaded(urlInput.trim());
+        }
+    };
+
     return (
-        <div className="flex flex-col items-center justify-center min-h-[60vh] w-full max-w-2xl mx-auto px-6">
+        <div className="flex flex-col items-center justify-center min-h-[85vh] w-full max-w-4xl mx-auto px-6 py-12 relative">
+            
+            {/* Header / Intro */}
             <motion.div
-                initial={{ opacity: 0, y: 20 }}
+                initial={{ opacity: 0, y: 15 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6 }}
-                className="text-center mb-12"
+                className="text-center mb-10 max-w-2xl"
             >
-                <h1 className="text-5xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-emerald-400">
-                    ReadFaster
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-warm-accent-light border border-warm-accent/20 text-warm-accent text-xs font-semibold uppercase tracking-wider mb-4">
+                    <Sparkles size={12} />
+                    Speed Reading Studio
+                </div>
+                <h1 className="text-4xl md:text-5xl font-serif font-semibold text-warm-text mb-4 tracking-tight leading-tight">
+                    Read faster. Absorb deeper.
                 </h1>
-                <p className="text-xl text-neutral-400">
-                    Upload your book and read at superhuman speeds.
+                <p className="text-base md:text-lg text-warm-muted leading-relaxed font-sans max-w-xl mx-auto">
+                    Train your focus and double your reading speed using Rapid Serial Visual Presentation. Just upload your text and dive in.
                 </p>
             </motion.div>
 
-            <motion.div
-                {...getRootProps() as any}
-                initial={{ scale: 0.95, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                whileHover={{ scale: 1.02, borderColor: 'rgba(59, 130, 246, 0.5)' }}
-                whileTap={{ scale: 0.98 }}
-                className={`w-full aspect-[2/1] rounded-3xl border-2 border-dashed flex flex-col items-center justify-center cursor-pointer transition-colors duration-300 backdrop-blur-sm bg-white/5
-          ${isDragActive ? 'border-blue-500 bg-blue-500/10' : 'border-neutral-700 hover:border-neutral-500'}
-        `}
-            >
-                <input {...getInputProps()} />
-                <div className="flex flex-col items-center space-y-4 text-neutral-400">
-                    <div className={`p-4 rounded-full bg-neutral-800 transition-colors ${isDragActive ? 'bg-blue-500/20 text-blue-400' : ''}`}>
-                        <Upload size={32} />
-                    </div>
-                    <p className="text-lg font-medium">
-                        {isDragActive ? "Drop the book here..." : "Drag & drop your file here"}
-                    </p>
-                    <p className="text-sm text-neutral-500">
-                        Supports PDF, TXT
-                    </p>
-                </div>
-            </motion.div >
-
-            <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.2 }}
-                className="w-full max-w-lg mt-8 flex flex-col md:flex-row gap-4"
-            >
-                <input
-                    type="text"
-                    placeholder="Or paste a URL to an article..."
-                    className="flex-1 bg-neutral-800/50 border border-neutral-700/50 rounded-xl px-4 py-3 text-white placeholder-neutral-500 focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/50 transition-all"
-                    onKeyDown={(e) => {
-                        if (e.key === 'Enter') {
-                            onFileLoaded((e.target as HTMLInputElement).value as any);
-                        }
-                    }}
-                />
-                <button
-                    onClick={() => {
-                        const input = document.querySelector('input[type="text"]') as HTMLInputElement;
-                        if (input && input.value) {
-                            onFileLoaded(input.value as any);
-                        }
-                    }}
-                    className="px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white font-medium rounded-xl transition-colors"
+            {/* Central Dashboard Layout (Upload Card + Samples Panel) */}
+            <div className="grid grid-cols-1 md:grid-cols-12 gap-8 w-full items-stretch">
+                
+                {/* File Dropzone Card */}
+                <motion.div
+                    initial={{ scale: 0.98, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    transition={{ delay: 0.1, duration: 0.5 }}
+                    className="md:col-span-7 flex flex-col"
                 >
-                    Go
-                </button>
-            </motion.div>
+                    <div
+                        {...getRootProps() as any}
+                        className={`group relative flex-1 min-h-[260px] rounded-3xl border-2 border-dashed flex flex-col items-center justify-center cursor-pointer transition-all duration-300 p-8 bg-warm-card shadow-sm hover:shadow-md
+                            ${isDragActive 
+                                ? 'border-warm-accent bg-warm-accent-light/30' 
+                                : 'border-warm-border hover:border-warm-accent/50'
+                            }
+                        `}
+                    >
+                        {/* Dot pattern on background */}
+                        <div className="absolute inset-0 bg-dot-pattern pointer-events-none opacity-80 group-hover:opacity-100 transition-opacity rounded-3xl" />
 
-            <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-6 w-full text-center">
+                        <input {...getInputProps()} />
+                        <div className="relative z-10 flex flex-col items-center space-y-4 text-center">
+                            <div className={`p-4 rounded-2xl bg-warm-surface border border-warm-border text-warm-muted transition-all group-hover:border-warm-accent/30 group-hover:text-warm-accent group-hover:scale-105 duration-300
+                                ${isDragActive ? 'border-warm-accent bg-warm-accent-light text-warm-accent' : ''}
+                            `}>
+                                <Upload size={28} />
+                            </div>
+                            <div className="space-y-1.5">
+                                <p className="text-base font-semibold text-warm-text">
+                                    {isDragActive ? "Drop the file here" : "Drag and drop your file"}
+                                </p>
+                                <p className="text-xs text-warm-muted">
+                                    Select a PDF or TXT e-book chapter
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </motion.div>
+
+                {/* Quick Try & URL sidecard */}
+                <motion.div
+                    initial={{ scale: 0.98, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    transition={{ delay: 0.2, duration: 0.5 }}
+                    className="md:col-span-5 flex flex-col gap-6"
+                >
+                    {/* URL Card */}
+                    <div className="p-6 rounded-3xl bg-warm-card border border-warm-border shadow-sm flex flex-col justify-center relative overflow-hidden">
+                        <div className="absolute inset-0 bg-grid-pattern opacity-10 pointer-events-none" />
+                        <h3 className="text-sm font-semibold text-warm-text mb-3 flex items-center gap-2">
+                            <FileText size={16} className="text-warm-accent" />
+                            Read Web Article
+                        </h3>
+                        <div className="flex gap-2 relative z-10">
+                            <input
+                                type="text"
+                                placeholder="Paste article URL..."
+                                value={urlInput}
+                                onChange={(e) => setUrlInput(e.target.value)}
+                                className="flex-1 bg-warm-surface border border-warm-border rounded-xl px-4 py-2.5 text-sm text-warm-text placeholder-warm-muted focus:outline-none focus:border-warm-accent/50 focus:ring-1 focus:ring-warm-accent/30 transition-all font-sans"
+                                onKeyDown={(e) => {
+                                    if (e.key === 'Enter') handleUrlSubmit();
+                                }}
+                            />
+                            <button
+                                onClick={handleUrlSubmit}
+                                className="p-2.5 bg-warm-accent hover:bg-warm-accent-hover text-white rounded-xl transition-colors active:scale-95 flex items-center justify-center"
+                            >
+                                <ArrowRight size={18} />
+                            </button>
+                        </div>
+                    </div>
+
+                    {/* Preloaded Samples Card */}
+                    <div className="p-6 rounded-3xl bg-warm-card border border-warm-border shadow-sm flex-1 flex flex-col justify-between">
+                        <div>
+                            <h3 className="text-sm font-semibold text-warm-text mb-3 flex items-center gap-2">
+                                <BookOpen size={16} className="text-warm-accent" />
+                                Try a Quick Sample
+                            </h3>
+                            <div className="flex flex-col gap-2">
+                                {[
+                                    { key: 'sample:rsvp', label: 'The Magic of RSVP', desc: 'Understanding speed reading mechanics' },
+                                    { key: 'sample:focus', label: 'Focus in the Digital Age', desc: 'An essay on mindfulness & flow' },
+                                    { key: 'sample:poem', label: 'A Dream Within a Dream', desc: 'Classic poetry by Edgar Allan Poe' }
+                                ].map((sample) => (
+                                    <button
+                                        key={sample.key}
+                                        onClick={() => onFileLoaded(sample.key)}
+                                        className="text-left p-3 rounded-xl border border-warm-border/60 bg-warm-surface/50 hover:bg-warm-surface hover:border-warm-accent/40 hover:shadow-sm transition-all group flex items-center justify-between"
+                                    >
+                                        <div className="space-y-0.5">
+                                            <div className="text-xs font-semibold text-warm-text group-hover:text-warm-accent transition-colors">{sample.label}</div>
+                                            <div className="text-[10px] text-warm-muted">{sample.desc}</div>
+                                        </div>
+                                        <ArrowRight size={12} className="text-warm-muted group-hover:text-warm-accent group-hover:translate-x-0.5 transition-all" />
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+                </motion.div>
+            </div>
+
+            {/* Editorial Features Section */}
+            <div className="mt-16 border-t border-warm-border/60 pt-10 grid grid-cols-1 md:grid-cols-3 gap-8 w-full">
                 {[
-                    { icon: Upload, title: "Upload", desc: "Drag and drop your file" },
-                    { icon: BookOpen, title: "Read", desc: "Focus on one word at a time" },
-                    { icon: FileText, title: "Learn", desc: "Absorb knowledge faster" },
+                    { number: "01", title: "Instant Visual Intake", desc: "Words display sequentially in place, removing the need for eye movement (saccades) and letting you digest text rapidly." },
+                    { number: "02", title: "Optical Centering", desc: "Every word aligns precisely on its Optimal Recognition Point, helping your brain recognize syllables instantly." },
+                    { number: "03", title: "Complete Context", desc: "Toggle our embedded context reader to review paragraphs, seek backwards, or adjust speeds on the fly." }
                 ].map((item, idx) => (
                     <motion.div
                         key={idx}
-                        initial={{ opacity: 0, y: 20 }}
+                        initial={{ opacity: 0, y: 15 }}
                         animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.2 + idx * 0.1 }}
-                        className="p-6 rounded-2xl bg-neutral-800/50 border border-neutral-700/50"
+                        transition={{ delay: 0.3 + idx * 0.1, duration: 0.5 }}
+                        className="space-y-2 group"
                     >
-                        <item.icon className="mx-auto mb-3 text-blue-400" size={24} />
-                        <h3 className="font-semibold text-white mb-1">{item.title}</h3>
-                        <p className="text-sm text-neutral-400">{item.desc}</p>
+                        <div className="font-serif italic text-3xl font-light text-warm-accent/40 group-hover:text-warm-accent transition-colors duration-300">
+                            {item.number}
+                        </div>
+                        <h4 className="text-sm font-semibold text-warm-text font-serif">{item.title}</h4>
+                        <p className="text-xs text-warm-muted leading-relaxed font-sans">{item.desc}</p>
                     </motion.div>
                 ))}
             </div>
-        </div >
+            
+        </div>
     );
 }

@@ -2,10 +2,66 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+@layer base {
+  :root {
+    --bg-primary: #fbfaf7;
+    --bg-secondary: #f4f0e6;
+    --bg-card: #fdfdfc;
+    --border-color: #e5dfd3;
+    --text-primary: #191919;
+    --text-secondary: #6b6863;
+    --accent: #cc5a37;
+    --accent-hover: #b24827;
+    --accent-light: rgba(204, 90, 55, 0.08);
+    --grid-color: rgba(229, 223, 211, 0.5);
+    --dot-color: rgba(204, 90, 55, 0.06);
+  }
+
+  .dark {
+    --bg-primary: #191816;
+    --bg-secondary: #221e1c;
+    --bg-card: #1f1b1a;
+    --border-color: #38312e;
+    --text-primary: #f4f0ea;
+    --text-secondary: #9e978e;
+    --accent: #e26a45;
+    --accent-hover: #ea7e5c;
+    --accent-light: rgba(226, 106, 69, 0.15);
+    --grid-color: rgba(56, 49, 46, 0.6);
+    --dot-color: rgba(226, 106, 69, 0.06);
+  }
+
+  body {
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    font-family: 'Inter', system-ui, sans-serif;
+    transition: background-color 0.25s ease, border-color 0.25s ease;
+  }
 }
 
-body {
-  @apply bg-neutral-900 text-white min-h-screen antialiased;
+.bg-grid-pattern {
+  background-size: 32px 32px;
+  background-image: 
+    linear-gradient(to right, var(--grid-color) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--grid-color) 1px, transparent 1px);
+}
+
+.bg-dot-pattern {
+  background-size: 18px 18px;
+  background-image: radial-gradient(var(--dot-color) 1.5px, transparent 1.5px);
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg-primary);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-secondary);
 }
